@@ -1,0 +1,74 @@
+const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+/** Fonction pour enregistrer les utilisateurs */
+exports.signup = (req, res, next) => {
+  console.log('Corps de la requête:', req.body);
+  bcrypt
+    .hash(req.body.password, 10)
+    // eslint-disable-next-line arrow-parens
+    .then((hash) => {
+      console.log('Mot de passe haché avec succès.');
+      const user = new User({
+        email: req.body.email,
+        password: hash,
+      });
+      user
+        .save()
+        .then(() => {
+          console.log('Utilisateur sauvegardé avec succès.');
+          res.status(201).json({ message: 'Utilisateur créé' });
+        })
+        .catch((error) => {
+          // Ce console.error affichera la cause exacte de l'échec de la sauvegarde
+          console.error(
+            "Erreur lors de la sauvegarde de l'utilisateur :",
+            error.message
+          );
+          res.status(400).json({ error });
+        });
+    })
+    .catch((error) => {
+      console.error('Erreur lors du hachage du mot de passe :', error.message);
+      res.status(500).json({ error });
+    });
+};
+
+/** Fonction pour connecter les utilisateurs existants */
+exports.login = (req, res, next) => {
+  User.findOne({ email: req.body.email })
+    .then((user) => {
+      if (user === null) {
+        // utilisateur n'existe pas dans la bbd
+        res
+          .status(401)
+          .json({ message: 'Paire/login/mot de passe incorrecte' });
+      } else {
+        bcrypt
+          .compare(req.body.password, user.password)
+          .then((valid) => {
+            if (!valid) {
+              res
+                .stat(401)
+                .json({ message: 'Paire/login/mot de passe incorrecte' });
+            } else {
+              res.status(200).json({
+                // eslint-disable-next-line no-underscore-dangle
+                userId: user._id,
+                // eslint-disable-next-line no-underscore-dangle
+                token: jwt.sign({ userId: user._id }, 'RANDOM_TOKEN_SECRET', {
+                  expiresIn: '24h',
+                }),
+              });
+            }
+          })
+          .catch((error) => {
+            res.status(500).json({ error });
+          });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error });
+    });
+};
