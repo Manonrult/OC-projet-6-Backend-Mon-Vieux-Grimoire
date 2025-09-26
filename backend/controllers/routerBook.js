@@ -110,6 +110,15 @@ exports.rateBook = async (req, res, next) => {
       userId: authentificatedUserId,
       grade: newRating,
     });
+    // Calcul de la moyenne
+    const totalGrades = book.ratings.reduce(
+      (sum, rating) => sum + rating.grade,
+      0
+    );
+    const numberOfRatings = book.ratings.length;
+    let averageRating = totalGrades / numberOfRatings;
+    averageRating = parseFloat(averageRating.toFixed(1));
+    book.averageRating = averageRating;
     // Sauvegarde du livre
     const updateBook = await book.save();
     return res.status(200).json(updateBook);
