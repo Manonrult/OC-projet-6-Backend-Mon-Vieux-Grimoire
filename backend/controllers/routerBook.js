@@ -1,6 +1,8 @@
+/* eslint-disable no-shadow */
 /** Logique métier de chaque route */
 const fs = require('fs');
 const Book = require('../models/Book');
+const { error } = require('console');
 
 exports.createBook = (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
@@ -81,6 +83,45 @@ exports.getOneBook = (req, res, next) => {
 
 exports.getAllBooks = (req, res, next) => {
   Book.find()
+    .then((books) => res.status(200).json(books))
+    .catch((error) => res.status(400).json({ error }));
+};
+
+exports.rateBook = async (req, res, next) => {
+  try {
+    // Récupération des données
+    const bookId = req.params.id;
+    const authentificatedUserId = req.auth.userId;
+    const newRating = req.body.rating;
+    // Recherche du libre
+    const book = await Book.findOne({ _id: bookId });
+    if (!book) {
+      return res.status(404).json({ message: 'Livre non trouvé' });
+    }
+    // Vérification de la non-notation
+    const alreadyRated = book.ratings.find(
+      (rating) => rating.userId === authentificatedUserId
+    );
+    if (alreadyRated) {
+      return res.status(403).json({ message: 'Vous avez déjà noté ce livre' });
+    }
+    // Ajout nouvel note
+    book.ratings.push({
+      userId: authentificatedUserId,
+      grade: newRating,
+    });
+    // Sauvegarde du livre
+    const updateBook = await book.save();
+    return res.status(200).json(updateBook);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
+
+exports.getBestRating = (req, res, next) => {
+  Book.find()
+    .sort({ averageRating: -1 }) // Trie par average décroissant
+    .limit(3)
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
