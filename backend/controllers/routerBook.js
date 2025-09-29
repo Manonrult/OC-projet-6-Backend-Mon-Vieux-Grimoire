@@ -2,13 +2,10 @@
 /** Logique métier de chaque route */
 const fs = require('fs');
 const Book = require('../models/Book');
-const { error } = require('console');
 
-exports.createBook = (req, res, next) => {
+exports.createBook = (req, res) => {
   const bookObject = JSON.parse(req.body.book);
-  // eslint-disable-next-line no-underscore-dangle
   delete bookObject._id;
-  // eslint-disable-next-line no-underscore-dangle
   delete bookObject._userId;
   const book = new Book({
     ...bookObject,
@@ -23,7 +20,7 @@ exports.createBook = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.modifyBook = (req, res, next) => {
+exports.modifyBook = (req, res) => {
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
@@ -32,12 +29,11 @@ exports.modifyBook = (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  // eslint-disable-next-line no-underscore-dangle
+  
   delete bookObject._userId;
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-      // eslint-disable-next-line eqeqeq
-      if (book.userId != req.auth.userId) {
+        if (book.userId != req.auth.userId) {
         res.status(401).json({ message: 'Non autorisé' });
       } else {
         Book.updateOne(
@@ -53,11 +49,10 @@ exports.modifyBook = (req, res, next) => {
     });
 };
 
-exports.deleteBook = (req, res, next) => {
+exports.deleteBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-      // eslint-disable-next-line eqeqeq
-      if (book.userId != req.auth.userId) {
+        if (book.userId != req.auth.userId) {
         res.status(401).json({ message: 'Non autorisé' });
       } else {
         const filename = book.imageUrl.split('/images/')[1];
@@ -75,19 +70,19 @@ exports.deleteBook = (req, res, next) => {
     });
 };
 
-exports.getOneBook = (req, res, next) => {
+exports.getOneBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => res.status(200).json(book))
     .catch((error) => res.status(404).json({ error }));
 };
 
-exports.getAllBooks = (req, res, next) => {
+exports.getAllBooks = (req, res) => {
   Book.find()
     .then((books) => res.status(200).json(books))
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.rateBook = async (req, res, next) => {
+exports.rateBook = async (req, res) => {
   try {
     // Récupération des données
     const bookId = req.params.id;
@@ -127,7 +122,7 @@ exports.rateBook = async (req, res, next) => {
   }
 };
 
-exports.getBestRating = (req, res, next) => {
+exports.getBestRating = (req, res) => {
   Book.find()
     .sort({ averageRating: -1 }) // Trie par average décroissant
     .limit(3)

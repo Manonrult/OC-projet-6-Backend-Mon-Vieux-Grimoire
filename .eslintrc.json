@@ -17,5 +17,7 @@
         "react"
     ],
     "rules": {
+        "comma-dangle": "off", 
+    "indent": "off"
     }
 }

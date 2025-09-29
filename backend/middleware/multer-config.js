@@ -2,8 +2,6 @@ const multer = require('multer');
 
 const sharp = require('sharp');
 
-// const fs = require('fs');
-
 // Configuration du Multer pour utiliser Memory Storage
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).single('image');
@@ -27,8 +25,6 @@ const optimizeImage = (req, res, next) => {
       // MAJ de l'orbjet req.file pour les middlewares suivants
       req.file.filename = filename;
       req.file.path = filepath;
-      console.log('Fichier optimisé et sauvegardé avec succès:', req.file.path);
-      // fs.unlinkSync(req.file.path); // supprime le fichier original en mémémoire
       next();
     })
     .catch((error) => {
