@@ -6,7 +6,6 @@ const User = require('../models/User');
 exports.signup = (req, res) => {
   bcrypt
     .hash(req.body.password, 10)
-    // eslint-disable-next-line arrow-parens
     .then((hash) => {
       const user = new User({
         email: req.body.email,
@@ -45,9 +44,7 @@ exports.login = (req, res) => {
                 .json({ message: 'Paire/login/mot de passe incorrecte' });
             } else {
               res.status(200).json({
-                // eslint-disable-next-line no-underscore-dangle
                 userId: user._id,
-                // eslint-disable-next-line no-underscore-dangle
                 token: jwt.sign({ userId: user._id }, 'RANDOM_TOKEN_SECRET', {
                   expiresIn: '24h',
                 }),

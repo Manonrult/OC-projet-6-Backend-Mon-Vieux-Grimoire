@@ -29,11 +29,10 @@ exports.modifyBook = (req, res) => {
         }`,
       }
     : { ...req.body };
-  
   delete bookObject._userId;
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-        if (book.userId != req.auth.userId) {
+      if (book.userId !== req.auth.userId) {
         res.status(401).json({ message: 'Non autorisé' });
       } else {
         Book.updateOne(
@@ -52,7 +51,7 @@ exports.modifyBook = (req, res) => {
 exports.deleteBook = (req, res) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-        if (book.userId != req.auth.userId) {
+      if (book.userId !== req.auth.userId) {
         res.status(401).json({ message: 'Non autorisé' });
       } else {
         const filename = book.imageUrl.split('/images/')[1];
@@ -88,7 +87,7 @@ exports.rateBook = async (req, res) => {
     const bookId = req.params.id;
     const authentificatedUserId = req.auth.userId;
     const newRating = req.body.rating;
-    // Recherche du libre
+    // Recherche du livre
     const book = await Book.findOne({ _id: bookId });
     if (!book) {
       return res.status(404).json({ message: 'Livre non trouvé' });

@@ -4,12 +4,13 @@ const sharp = require('sharp');
 
 // Configuration du Multer pour utiliser Memory Storage
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage }).single('image');
+const upload = multer({ storage }).single('image');
 
 // Middleware d'optimisation avec Sharp
+// eslint-disable-next-line consistent-return
 const optimizeImage = (req, res, next) => {
   if (!req.file) {
-    return next();
+    return res.status(500).json({ message: "Pas d'image" });
   }
 
   // Nom du fichier et chemin de destination
@@ -22,7 +23,7 @@ const optimizeImage = (req, res, next) => {
     .webp({ quality: 80 }) // convertit en Webp qualité de 80%
     .toFile(filepath) // enregistrement sur le système de fichier
     .then(() => {
-      // MAJ de l'orbjet req.file pour les middlewares suivants
+      // MAJ de l'objet req.file pour les middlewares suivants
       req.file.filename = filename;
       req.file.path = filepath;
       next();

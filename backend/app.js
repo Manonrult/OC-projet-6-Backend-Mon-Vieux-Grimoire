@@ -5,8 +5,6 @@ const app = express();
 
 const cors = require('cors');
 
-// app.use(express.json());
-
 const mongoose = require('mongoose');
 
 const path = require('path');
@@ -18,10 +16,8 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'));
-
-// app.use(express.json()); // extraire le corps JSON pour gérer la requête POST
+  .then(() => console.info('Connexion à MongoDB réussie !'))
+  .catch(() => console.info('Connexion à MongoDB échouée !'));
 
 /** Gestion erreurs de Cors */
 app.use(cors());
