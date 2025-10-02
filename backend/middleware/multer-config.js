@@ -10,7 +10,8 @@ const upload = multer({ storage }).single('image');
 // eslint-disable-next-line consistent-return
 const optimizeImage = (req, res, next) => {
   if (!req.file) {
-    return res.status(500).json({ message: "Pas d'image" });
+    // return res.status(500).json({ message: "Pas d'image" });
+    return next();
   }
 
   // Nom du fichier et chemin de destination

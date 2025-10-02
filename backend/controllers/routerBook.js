@@ -31,7 +31,12 @@ exports.modifyBook = (req, res) => {
     : { ...req.body };
   delete bookObject._userId;
   Book.findOne({ _id: req.params.id })
+    // eslint-disable-next-line consistent-return
     .then((book) => {
+      if (!book) {
+        // Livre non trouvé (ID incorrect ou inexistant)
+        return res.status(404).json({ message: 'Livre non trouvé.' });
+      }
       if (book.userId !== req.auth.userId) {
         res.status(401).json({ message: 'Non autorisé' });
       } else {
